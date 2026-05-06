@@ -814,6 +814,17 @@ function setupEventListeners() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+
+        // --- 名稱唯一性防護機制 ---
+        // 檢查是否已經有「其他手機(不同的 deviceId)」使用了這個名字
+        const isNameUsedByOthers = orders.some(o => o.userName === name && o.deviceId !== deviceId);
+        if (isNameUsedByOthers) {
+            alert('⚠️ 這個名字已經被其他同事使用了喔！\n為了避免中午發便當拿錯，請修改一下名字 (例如：加上姓氏或代號)。');
+            userNameInput.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
         if (cart.length === 0) return alert('購物車是空的喔！');
 
         // Remember user name in localStorage
