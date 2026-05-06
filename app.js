@@ -483,6 +483,7 @@ function setupEventListeners() {
         const inputPwd = document.getElementById('auth-password-input').value;
         if (inputPwd === adminPassword) {
             isAdminAuthenticated = true;
+            document.getElementById('auth-modal').classList.remove('active'); // 修正：登入成功後關閉視窗
             document.getElementById('auth-password-input').value = '';
             handleRouting(); // Trigger view update now that we are authenticated
             showToast('管理員登入成功！');
@@ -490,6 +491,14 @@ function setupEventListeners() {
             alert('密碼錯誤！請重新輸入。');
         }
     });
+
+    // 額外加強：支援按 Enter 鍵登入
+    const authPwdInput = document.getElementById('auth-password-input');
+    if (authPwdInput) {
+        authPwdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') authSubmitBtn.click();
+        });
+    }
 
     const togglePwdBtn = document.getElementById('toggle-pwd-visibility');
     if (togglePwdBtn) togglePwdBtn.addEventListener('click', () => {
