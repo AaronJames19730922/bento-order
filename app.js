@@ -351,7 +351,7 @@ function renderAdminStores() {
                 </div>
             </div>
             <div class="admin-menu-list">
-                ${store.menu.map(item => `
+                ${(store.menu || []).map(item => `
                     <div class="admin-menu-item ${item.isHidden ? 'item-hidden' : ''}">
                         <div class="item-main-info">
                             <span>${item.name} ($${item.price})</span>
@@ -384,7 +384,7 @@ function renderAdminTemplates() {
                 <h3>📋 ${template.name} (${template.type === 'bento' ? '便當' : '飲料'})</h3>
             </div>
             <div class="admin-menu-list">
-                ${template.menu.map(item => `
+                ${(template.menu || []).map(item => `
                     <div class="admin-menu-item">
                         <span>${item.name} ($${item.price})</span>
                         <button class="btn-text danger" onclick="deleteTemplateItem('${template.id}', '${item.id}')">刪除</button>
@@ -581,6 +581,7 @@ function setupEventListeners() {
         
         if (isTemplate) {
             const template = templates.find(t => t.id === id);
+            if (!template.menu) template.menu = [];
             template.menu.push({ id: 'tm' + Date.now(), name, price, desc, img, isHidden: false });
         } else {
             const store = stores.find(s => s.id === id);
