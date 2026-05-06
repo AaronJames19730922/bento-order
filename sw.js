@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bento-v11';
+const CACHE_NAME = 'bento-v12';
 const ASSETS = [
   'index.html',
   'style.css',

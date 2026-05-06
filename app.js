@@ -626,6 +626,7 @@ function renderAdminStores() {
                             <button class="btn-text ${item.isHidden ? 'primary' : 'muted'}" onclick="toggleVisibility('${store.id}', '${item.id}')">
                                 ${item.isHidden ? '👁️ 顯示' : '🚫 隱藏'}
                             </button>
+                            <button class="btn-text secondary" onclick="openEditItemModal('${store.id}', '${item.id}', false)">✏️ 修改</button>
                             <button class="btn-text danger" onclick="deleteItem('${store.id}', '${item.id}')">刪除</button>
                         </div>
                     </div>`).join('')}
@@ -661,7 +662,10 @@ function renderAdminTemplates() {
                 ${(template.menu || []).map(item => `
                     <div class="admin-menu-item">
                         <span>${item.name} ($${item.price})</span>
-                        <button class="btn-text danger" onclick="deleteTemplateItem('${template.id}', '${item.id}')">刪除</button>
+                        <div class="item-admin-controls">
+                            <button class="btn-text secondary" onclick="openEditItemModal('${template.id}', '${item.id}', true)">✏️ 修改</button>
+                            <button class="btn-text danger" onclick="deleteTemplateItem('${template.id}', '${item.id}')">刪除</button>
+                        </div>
                     </div>`).join('')}
                 <button class="btn-text primary" onclick="openAddItemModal('${template.id}', true)">+ 新增範本餐點</button>
             </div>
@@ -708,6 +712,41 @@ window.deleteStore = (id) => {
 window.openAddItemModal = (id, isTemplate) => {
     document.getElementById('edit-item-store-id').value = id;
     document.getElementById('edit-item-is-template').value = isTemplate ? 'true' : 'false';
+    document.getElementById('edit-item-id').value = '';
+    const titleObj = document.getElementById('item-modal-title');
+    if (titleObj) titleObj.innerText = '新增餐點';
+    
+    document.getElementById('item-name-input').value = '';
+    document.getElementById('item-price-input').value = '';
+    document.getElementById('item-desc-input').value = '';
+    document.getElementById('item-img-input').value = '';
+
+    document.getElementById('item-modal').classList.add('active');
+};
+
+window.openEditItemModal = (id, itemId, isTemplate) => {
+    document.getElementById('edit-item-store-id').value = id;
+    document.getElementById('edit-item-is-template').value = isTemplate ? 'true' : 'false';
+    document.getElementById('edit-item-id').value = itemId;
+    const titleObj = document.getElementById('item-modal-title');
+    if (titleObj) titleObj.innerText = '修改餐點';
+    
+    let item;
+    if (isTemplate) {
+        const template = templates.find(t => t.id === id);
+        item = template.menu.find(i => i.id === itemId);
+    } else {
+        const store = stores.find(s => s.id === id);
+        item = store.menu.find(i => i.id === itemId);
+    }
+    
+    if (item) {
+        document.getElementById('item-name-input').value = item.name;
+        document.getElementById('item-price-input').value = item.price;
+        document.getElementById('item-desc-input').value = item.desc || '';
+        document.getElementById('item-img-input').value = item.img || '';
+    }
+    
     document.getElementById('item-modal').classList.add('active');
 };
 
@@ -944,20 +983,34 @@ function setupEventListeners() {
     if (saveItemBtn) saveItemBtn.addEventListener('click', () => {
         const id = document.getElementById('edit-item-store-id').value;
         const isTemplate = document.getElementById('edit-item-is-template').value === 'true';
+        const itemId = document.getElementById('edit-item-id').value;
         const name = document.getElementById('item-name-input').value.trim();
         const price = parseInt(document.getElementById('item-price-input').value);
         const desc = document.getElementById('item-desc-input').value.trim();
         const img = document.getElementById('item-img-input').value.trim();
         if (!name || isNaN(price)) return alert('請輸入完整的餐點資訊');
         
+        let targetMenu;
         if (isTemplate) {
             const template = templates.find(t => t.id === id);
             if (!template.menu) template.menu = [];
-            template.menu.push({ id: 'tm' + Date.now(), name, price, desc, img, isHidden: false });
+            targetMenu = template.menu;
         } else {
             const store = stores.find(s => s.id === id);
             if (!store.menu) store.menu = [];
-            store.menu.push({ id: 'm' + Date.now(), name, price, desc, img, isHidden: false });
+            targetMenu = store.menu;
+        }
+
+        if (itemId) {
+            const item = targetMenu.find(i => i.id === itemId);
+            if (item) {
+                item.name = name;
+                item.price = price;
+                item.desc = desc;
+                item.img = img;
+            }
+        } else {
+            targetMenu.push({ id: (isTemplate ? 'tm' : 'm') + Date.now(), name, price, desc, img, isHidden: false });
         }
         
         saveData();
