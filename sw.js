@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bento-v2';
+const CACHE_NAME = 'bento-v3';
 const ASSETS = [
   'index.html',
   'style.css',
@@ -8,15 +8,32 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // 強制立即接管
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
 });
 
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName); // 刪除舊快取
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim(); // 確保重新整理後立即套用新版本
+});
+
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      // 網路優先，失敗才讀取快取 (Network First) 來確保始終抓取最新檔案
+      return fetch(event.request).catch(() => response);
     })
   );
 });
