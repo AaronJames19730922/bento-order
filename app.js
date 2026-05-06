@@ -143,6 +143,9 @@ let selectedDrinkStoreId = '';
 let isAppInitialized = false;
 let orderDeadline = ''; // New: Deadline Time
 
+let expandedAdminStores = new Set();
+let expandedAdminTemplates = new Set();
+
 let adminPassword = 'admin';
 let isAdminAuthenticated = false;
 
@@ -572,18 +575,22 @@ function renderAdmin() {
 
 function renderAdminStores() {
     if (!storesAdminList) return;
-    storesAdminList.innerHTML = stores.map(store => `
+    storesAdminList.innerHTML = stores.map(store => {
+        const isExpanded = expandedAdminStores.has(store.id);
+        const menuCount = store.menu ? store.menu.length : 0;
+        return `
         <div class="store-admin-card">
             <div class="store-admin-header">
                 <h3 style="display:flex; align-items:center;">${store.type === 'bento' ? '🍱' : '🥤'} ${store.name} 
                     <button class="btn-text muted" style="font-size: 13px; margin-left: 10px; opacity:0.8;" onclick="editStoreName('${store.id}')">✏️修改</button>
                 </h3>
                 <div class="store-actions">
+                    <button class="btn-text secondary" onclick="toggleStoreMenu('${store.id}')">${isExpanded ? '🔼 收起' : `🔽 展開菜單 (${menuCount})`}</button>
                     <button class="btn-text secondary" onclick="openImportModal('${store.id}')">📥 套用範本</button>
                     <button class="btn-icon danger" onclick="deleteStore('${store.id}')">🗑️</button>
                 </div>
             </div>
-            <div class="admin-menu-list">
+            <div class="admin-menu-list" style="display: ${isExpanded ? 'block' : 'none'}; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 10px;">
                 ${(store.menu || []).map(item => `
                     <div class="admin-menu-item ${item.isHidden ? 'item-hidden' : ''}">
                         <div class="item-main-info">
@@ -599,7 +606,8 @@ function renderAdminStores() {
                     </div>`).join('')}
                 <button class="btn-text primary" onclick="openAddItemModal('${store.id}', false)">+ 新增餐點</button>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
 }
 
 window.toggleVisibility = (storeId, itemId) => {
@@ -611,14 +619,20 @@ window.toggleVisibility = (storeId, itemId) => {
 
 function renderAdminTemplates() {
     if (!templatesAdminList) return;
-    templatesAdminList.innerHTML = templates.map(template => `
+    templatesAdminList.innerHTML = templates.map(template => {
+        const isExpanded = expandedAdminTemplates.has(template.id);
+        const menuCount = template.menu ? template.menu.length : 0;
+        return `
         <div class="store-admin-card template-card">
             <div class="store-admin-header">
                 <h3 style="display:flex; align-items:center;">📋 ${template.name} (${template.type === 'bento' ? '便當' : '飲料'})
                     <button class="btn-text muted" style="font-size: 13px; margin-left: 10px; opacity:0.8;" onclick="editTemplateName('${template.id}')">✏️修改</button>
                 </h3>
+                <div class="store-actions">
+                    <button class="btn-text secondary" onclick="toggleTemplateMenu('${template.id}')">${isExpanded ? '🔼 收起' : `🔽 展開菜單 (${menuCount})`}</button>
+                </div>
             </div>
-            <div class="admin-menu-list">
+            <div class="admin-menu-list" style="display: ${isExpanded ? 'block' : 'none'}; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 10px;">
                 ${(template.menu || []).map(item => `
                     <div class="admin-menu-item">
                         <span>${item.name} ($${item.price})</span>
@@ -626,8 +640,21 @@ function renderAdminTemplates() {
                     </div>`).join('')}
                 <button class="btn-text primary" onclick="openAddItemModal('${template.id}', true)">+ 新增範本餐點</button>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
 }
+
+window.toggleStoreMenu = (id) => {
+    if (expandedAdminStores.has(id)) expandedAdminStores.delete(id);
+    else expandedAdminStores.add(id);
+    renderAdminStores();
+};
+
+window.toggleTemplateMenu = (id) => {
+    if (expandedAdminTemplates.has(id)) expandedAdminTemplates.delete(id);
+    else expandedAdminTemplates.add(id);
+    renderAdminTemplates();
+};
 
 window.openImportModal = (storeId) => {
     const store = stores.find(s => s.id === storeId);
