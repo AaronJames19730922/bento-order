@@ -775,3 +775,53 @@ select {
 [data-theme="theme-10"] { --primary: #5C7CFA; --primary-light: #91A7FF; --primary-dark: #364FC7; --secondary: #20C997; }
 [data-theme="theme-11"] { --primary: #38D9A9; --primary-light: #69DB7C; --primary-dark: #2B8A3E; --secondary: #CC5DE8; }
 [data-theme="theme-12"] { --primary: #212529; --primary-light: #495057; --primary-dark: #000000; --secondary: #FAB005; }
+
+/* =========================================
+   Announcement Banner
+   ========================================= */
+.announcement-banner {
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 15px;
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+    line-height: 1.5;
+}
+
+/* =========================================
+   History Records
+   ========================================= */
+.history-day-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--glass-shadow);
+}
+.history-day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--primary-dark);
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #eee;
+}
+.history-day-details {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+}
+.history-order-item {
+    padding: 8px 0;
+    border-bottom: 1px dashed #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+}

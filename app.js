@@ -143,6 +143,9 @@ let selectedDrinkStoreId = '';
 let isAppInitialized = false;
 let orderDeadline = ''; // New: Deadline Time
 let currentTheme = 'theme-1';
+let announcement = '';
+let orderLimit = 0; // 0 = unlimited
+let orderHistory = {};
 
 let expandedAdminStores = new Set();
 let expandedAdminTemplates = new Set();
@@ -212,6 +215,9 @@ onValue(ref(db, '/'), (snapshot) => {
     adminPassword = data.admin_password || 'admin';
     orderDeadline = data.order_deadline || '';
     currentTheme = data.theme || 'theme-1';
+    announcement = data.announcement || '';
+    orderLimit = data.order_limit || 0;
+    orderHistory = data.order_history || {};
     
     document.documentElement.setAttribute('data-theme', currentTheme);
     updateThemeUI();
@@ -231,6 +237,9 @@ onValue(ref(db, '/'), (snapshot) => {
     renderMenu();
     renderMyOrders();
     updateDeadlineUI();
+    updateAnnouncementUI();
+    updateOrderLimitUI();
+    renderHistory();
 });
 
 // Write to Firebase instead of LocalStorage
@@ -243,7 +252,10 @@ function saveData() {
         active_drink_id: selectedDrinkStoreId,
         admin_password: adminPassword,
         order_deadline: orderDeadline,
-        theme: currentTheme
+        theme: currentTheme,
+        announcement: announcement,
+        order_limit: orderLimit,
+        order_history: orderHistory
     });
 }
 
@@ -412,6 +424,111 @@ setInterval(() => {
     if (orderDeadline) window.updateDeadlineUI();
 }, 30000);
 
+// --- Announcement UI ---
+window.updateAnnouncementUI = () => {
+    const banner = document.getElementById('announcement-banner');
+    const adminInput = document.getElementById('admin-announcement-input');
+    
+    if (adminInput && !adminInput.value && announcement) {
+        adminInput.value = announcement;
+    }
+    
+    if (!announcement) {
+        if (banner) banner.style.display = 'none';
+        return;
+    }
+    if (banner) {
+        banner.style.display = 'block';
+        banner.innerHTML = `📢 ${announcement}`;
+    }
+};
+
+// --- Order Limit UI ---
+window.updateOrderLimitUI = () => {
+    const display = document.getElementById('current-order-limit-display');
+    const adminInput = document.getElementById('admin-order-limit-input');
+    const submitBtn = document.getElementById('submit-order');
+    
+    if (adminInput && !adminInput.value && orderLimit > 0) {
+        adminInput.value = orderLimit;
+    }
+    
+    if (display) {
+        display.innerText = orderLimit > 0 
+            ? `目前上限：${orderLimit} 份 | 已訂：${orders.length} 份 | 剩餘：${Math.max(0, orderLimit - orders.length)} 份` 
+            : '目前無設定上限 (不限制)';
+    }
+
+    if (orderLimit > 0 && orders.length >= orderLimit) {
+        const banner = document.getElementById('deadline-banner');
+        if (banner) {
+            banner.style.display = 'block';
+            banner.className = 'deadline-banner passed';
+            banner.innerHTML = `🛑 今日訂單已額滿 (${orderLimit}/${orderLimit})，無法再接單！`;
+        }
+        if (submitBtn && !window.isDeadlinePassed()) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = '訂單已額滿';
+        }
+    }
+};
+
+window.isOrderFull = () => {
+    return orderLimit > 0 && orders.length >= orderLimit;
+};
+
+// --- History Rendering ---
+let expandedHistoryDays = new Set();
+
+function renderHistory() {
+    const historyList = document.getElementById('history-list');
+    if (!historyList) return;
+    
+    const days = Object.keys(orderHistory).sort().reverse();
+    
+    if (days.length === 0) {
+        historyList.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.5;">尚無歸檔紀錄。請在「訂單匯總」頁面按下「📦 歸檔今日訂單」來保存紀錄。</p>';
+        return;
+    }
+    
+    historyList.innerHTML = days.map(day => {
+        const dayOrders = orderHistory[day];
+        const isExpanded = expandedHistoryDays.has(day);
+        const totalAmount = dayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+        return `
+        <div class="history-day-card">
+            <div class="history-day-header" onclick="toggleHistoryDay('${day}')">
+                <span>📅 ${day} (${dayOrders.length} 筆 / $${totalAmount})</span>
+                <span>${isExpanded ? '🔼' : '🔽'}</span>
+            </div>
+            <div class="history-day-details" style="display: ${isExpanded ? 'block' : 'none'};">
+                ${dayOrders.map(o => `
+                    <div class="history-order-item">
+                        <span>👤 ${o.userName} — ${o.items.map(i => i.name + ' x' + i.quantity).join(', ')}</span>
+                        <span style="font-weight:bold;">$${o.total}</span>
+                    </div>
+                `).join('')}
+                <div style="text-align:right; margin-top:10px;">
+                    <button class="btn-text danger" onclick="deleteHistoryDay('${day}')">🗑️ 刪除此日紀錄</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+window.toggleHistoryDay = (day) => {
+    if (expandedHistoryDays.has(day)) expandedHistoryDays.delete(day);
+    else expandedHistoryDays.add(day);
+    renderHistory();
+};
+
+window.deleteHistoryDay = (day) => {
+    if (confirm(`確定要刪除 ${day} 的歷史紀錄嗎？`)) {
+        delete orderHistory[day];
+        saveData();
+        showToast('已刪除歷史紀錄！');
+    }
+};
 
 window.editMyOrder = (orderId) => {
     if (window.isDeadlinePassed()) return alert('🛑 時間已經截止，無法更改訂單囉！');
@@ -801,6 +918,77 @@ window.editTemplateName = (id) => {
         showToast('已成功解除時間限制！');
     });
 
+    // --- Announcement Listeners ---
+    const saveAnnouncementBtn = document.getElementById('save-announcement-btn');
+    if (saveAnnouncementBtn) saveAnnouncementBtn.addEventListener('click', () => {
+        const text = document.getElementById('admin-announcement-input').value.trim();
+        if (!text) return alert('請輸入公告內容！');
+        announcement = text;
+        saveData();
+        showToast('公告已發布！');
+    });
+
+    const clearAnnouncementBtn = document.getElementById('clear-announcement-btn');
+    if (clearAnnouncementBtn) clearAnnouncementBtn.addEventListener('click', () => {
+        document.getElementById('admin-announcement-input').value = '';
+        announcement = '';
+        saveData();
+        showToast('公告已清除！');
+    });
+
+    // --- Order Limit Listeners ---
+    const saveOrderLimitBtn = document.getElementById('save-order-limit-btn');
+    if (saveOrderLimitBtn) saveOrderLimitBtn.addEventListener('click', () => {
+        const val = parseInt(document.getElementById('admin-order-limit-input').value);
+        if (isNaN(val) || val <= 0) return alert('請輸入有效的數量上限！');
+        orderLimit = val;
+        saveData();
+        showToast(`已設定訂單上限為 ${val} 份！`);
+    });
+
+    const clearOrderLimitBtn = document.getElementById('clear-order-limit-btn');
+    if (clearOrderLimitBtn) clearOrderLimitBtn.addEventListener('click', () => {
+        document.getElementById('admin-order-limit-input').value = '';
+        orderLimit = 0;
+        saveData();
+        showToast('已解除訂單數量限制！');
+    });
+
+    // --- Archive Orders Listener ---
+    const archiveOrdersBtn = document.getElementById('archive-orders');
+    if (archiveOrdersBtn) archiveOrdersBtn.addEventListener('click', () => {
+        if (orders.length === 0) return alert('目前沒有訂單可以歸檔！');
+        const today = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        if (orderHistory[today]) {
+            if (!confirm(`${today} 已經有歸檔紀錄了，要覆蓋成今天最新的訂單嗎？`)) return;
+        }
+        orderHistory[today] = JSON.parse(JSON.stringify(orders));
+        orders = [];
+        saveData();
+        showToast(`已成功歸檔 ${today} 的訂單！`);
+    });
+
+    // --- Export CSV Listener ---
+    const exportCsvBtn = document.getElementById('export-csv');
+    if (exportCsvBtn) exportCsvBtn.addEventListener('click', () => {
+        if (orders.length === 0) return alert('目前沒有訂單可以匯出！');
+        
+        let csv = '\uFEFF姓名,品項,甜度,冰度,數量,單價,小計,訂單時間,繳費狀態\n';
+        orders.forEach(order => {
+            order.items.forEach(item => {
+                csv += `${order.userName},${item.name},${item.sugar || '-'},${item.ice || '-'},${item.quantity},${item.price},${item.price * item.quantity},${order.time},${order.isPaid ? '已繳費' : '未繳費'}\n`;
+            });
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `訂單匯出_${new Date().toLocaleDateString('zh-TW')}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        showToast('CSV 已下載！');
+    });
+
 function updateThemeUI() {
     document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.theme === currentTheme);
@@ -1036,6 +1224,11 @@ function setupEventListeners() {
 
         if (window.isDeadlinePassed()) {
             alert('🛑 抱歉，今日訂餐時間已經截止，無法再點餐囉！');
+            return;
+        }
+
+        if (window.isOrderFull()) {
+            alert('🛑 抱歉，今日訂單已經額滿，無法再接單囉！');
             return;
         }
 

@@ -35,6 +35,7 @@
                     </div>
                     
                     <div id="deadline-banner" class="deadline-banner" style="display: none;"></div>
+                    <div id="announcement-banner" class="announcement-banner" style="display: none;"></div>
 
                     <h1>今日選單</h1>
                     <div class="user-id-section">
@@ -80,6 +81,7 @@
                     <h1>管理中心</h1>
                     <div class="admin-tabs">
                         <button class="admin-sub-tab active" data-subview="order-mgmt">訂單匯總</button>
+                        <button class="admin-sub-tab" data-subview="history-mgmt">📊 歷史紀錄</button>
                         <button class="admin-sub-tab" data-subview="store-mgmt">商家與菜單</button>
                         <button class="admin-sub-tab" data-subview="template-mgmt">範本管理</button>
                         <button class="admin-sub-tab" data-subview="system-mgmt">系統設定 ⚙️</button>
@@ -98,6 +100,27 @@
                         <p id="current-deadline-display" style="margin-top: 10px; font-size: 14px; font-weight: bold; color: var(--danger);"></p>
                     </div>
 
+                    <div class="admin-store-lock" style="margin-bottom: 20px;">
+                        <h3>🔔 訂單數量上限</h3>
+                        <div class="selector-group" style="display: flex; flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+                            <input type="number" id="admin-order-limit-input" placeholder="例如：30" min="0" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border); width: 100px;">
+                            <button id="save-order-limit-btn" class="btn primary">設定上限</button>
+                            <button id="clear-order-limit-btn" class="btn ghost">不限制</button>
+                        </div>
+                        <p id="current-order-limit-display" style="margin-top: 10px; font-size: 14px; font-weight: bold; color: var(--text-muted);"></p>
+                    </div>
+
+                    <div class="admin-store-lock" style="margin-bottom: 20px;">
+                        <h3>📢 今日公告</h3>
+                        <div class="selector-group" style="margin-top: 10px;">
+                            <input type="text" id="admin-announcement-input" placeholder="例如：今天雞腿飯限量 10 份、老闆請客不用付錢..." style="padding: 10px; border-radius: 6px; border: 1px solid var(--border); width: 100%;">
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button id="save-announcement-btn" class="btn primary">發布公告</button>
+                                <button id="clear-announcement-btn" class="btn ghost">清除公告</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="admin-store-lock">
                         <h3>🔒 指定今日店家</h3>
                         <div class="admin-selectors">
@@ -112,14 +135,25 @@
                         </div>
                     </div>
                     <div class="admin-actions">
-                        <button id="copy-summary" class="btn secondary">複製匯總文字</button>
-                        <button id="clear-orders" class="btn danger">清空今日訂單</button>
+                        <button id="copy-summary" class="btn secondary">📋 複製匯總文字</button>
+                        <button id="export-csv" class="btn secondary">📊 匯出 CSV</button>
+                        <button id="archive-orders" class="btn secondary">📦 歸檔今日訂單</button>
+                        <button id="clear-orders" class="btn danger">🗑️ 清空今日訂單</button>
                     </div>
                     <div id="admin-summary" class="summary-card">
                         <h2>數量統計</h2>
                         <div id="stats-list"></div>
                     </div>
                     <div id="orders-list" class="orders-container"></div>
+                </div>
+
+                <!-- History Subview -->
+                <div id="history-mgmt" class="subview">
+                    <div class="summary-card">
+                        <h2>📊 歷史訂單紀錄</h2>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">每次歸檔的訂單會按日期保存在這裡，方便月底對帳。</p>
+                        <div id="history-list"></div>
+                    </div>
                 </div>
 
                 <!-- Store Management Subview -->
