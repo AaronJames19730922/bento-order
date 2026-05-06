@@ -16,10 +16,17 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // Device ID tracking for "My Orders" feature
-let deviceId = localStorage.getItem('bento_device_id');
-if (!deviceId) {
-    deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('bento_device_id', deviceId);
+// Device ID tracking for "My Orders" feature
+let deviceId;
+try {
+    deviceId = localStorage.getItem('bento_device_id');
+    if (!deviceId) {
+        deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('bento_device_id', deviceId);
+    }
+} catch (e) {
+    // Fallback for strict in-app browsers that block localStorage
+    deviceId = 'dev_' + Date.now() + '_temp';
 }
 
 // Import Firebase SDKs from CDN
@@ -656,9 +663,11 @@ function setupEventListeners() {
     window.addEventListener('hashchange', handleRouting);
     handleRouting(); // Handle initial load
 
-    // Load saved username if exists
-    const savedName = localStorage.getItem('bento_user_name');
-    if (savedName && userNameInput) userNameInput.value = savedName;
+    // Load saved username if exists (safe for in-app browsers)
+    try {
+        const savedName = localStorage.getItem('bento_user_name');
+        if (savedName && userNameInput) userNameInput.value = savedName;
+    } catch (e) { console.warn("LocalStorage not accessible"); }
 
     document.querySelectorAll('.nav-item').forEach(nav => {
         nav.addEventListener('click', () => {
@@ -827,8 +836,10 @@ function setupEventListeners() {
 
         if (cart.length === 0) return alert('購物車是空的喔！');
 
-        // Remember user name in localStorage
-        localStorage.setItem('bento_user_name', name);
+        // Remember user name in localStorage safely
+        try {
+            localStorage.setItem('bento_user_name', name);
+        } catch(e) {}
         
         // Push order to the orders array
         orders.unshift({ 

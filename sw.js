@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bento-v5';
+const CACHE_NAME = 'bento-v6';
 const ASSETS = [
   'index.html',
   'style.css',
@@ -31,7 +31,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
+    caches.match(event.request, { ignoreSearch: true }).then((response) => {
       // 網路優先，失敗才讀取快取 (Network First) 來確保始終抓取最新檔案
       return fetch(event.request).catch(() => response);
     })
