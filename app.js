@@ -76,7 +76,27 @@ const INITIAL_TEMPLATES = [
             { id: 'd27', name: '冬瓜鮮奶', price: 50, desc: '順口香甜', isHidden: false },
             { id: 'd28', name: '蜂蜜綠茶', price: 40, desc: '純天然蜂蜜', isHidden: false },
             { id: 'd29', name: '蜜茶', price: 35, desc: '清甜解渴', isHidden: false },
-            { id: 'd30', name: '鮮柚QQ', price: 60, desc: '葡萄柚加珍珠椰果', isHidden: false }
+            { id: 'd30', name: '鮮柚QQ', price: 60, desc: '葡萄柚加珍珠椰果', isHidden: false },
+            { id: 'd31', name: '梅子綠茶', price: 40, desc: '酸甜古早味', isHidden: false },
+            { id: 'd32', name: '冰淇淋紅茶', price: 50, desc: '香草冰淇淋', isHidden: false },
+            { id: 'd33', name: '布丁奶綠', price: 50, desc: '茉香綠加布丁', isHidden: false },
+            { id: 'd34', name: '金桔檸檬', price: 45, desc: '酸爽夠味', isHidden: false },
+            { id: 'd35', name: '百香雙響炮', price: 55, desc: '珍珠加椰果', isHidden: false },
+            { id: 'd36', name: '洛神花茶', price: 40, desc: '酸甜養生', isHidden: false },
+            { id: 'd37', name: '蘋果冰茶', price: 50, desc: '蘋果果肉', isHidden: false },
+            { id: 'd38', name: '水蜜桃青茶', price: 50, desc: '蜜桃香氣', isHidden: false },
+            { id: 'd39', name: '鳳梨冰茶', price: 55, desc: '熬煮鳳梨醬', isHidden: false },
+            { id: 'd40', name: '黑糖珍珠厚鮮奶', price: 75, desc: '加厚奶霜', isHidden: false },
+            { id: 'd41', name: '焦糖奶茶', price: 55, desc: '焦糖香氣', isHidden: false },
+            { id: 'd42', name: '法式可可', price: 60, desc: '濃郁巧克力', isHidden: false },
+            { id: 'd43', name: '靜岡抹茶拿鐵', price: 70, desc: '純正抹茶', isHidden: false },
+            { id: 'd44', name: '芋頭鮮奶', price: 65, desc: '大甲芋泥', isHidden: false },
+            { id: 'd45', name: '紅豆鮮奶', price: 65, desc: '綿密萬丹紅豆', isHidden: false },
+            { id: 'd46', name: '紫薯拿鐵', price: 65, desc: '浪漫紫薯', isHidden: false },
+            { id: 'd47', name: '芝芝芒芒', price: 80, desc: '芒果冰沙加奶蓋', isHidden: false },
+            { id: 'd48', name: '芝芝莓莓', price: 80, desc: '草莓冰沙加奶蓋', isHidden: false },
+            { id: 'd49', name: '海鹽奶蓋紅', price: 55, desc: '微鹹奶霜', isHidden: false },
+            { id: 'd50', name: '海鹽奶蓋綠', price: 55, desc: '微鹹奶霜', isHidden: false }
         ]
     }
 ];
