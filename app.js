@@ -26,17 +26,57 @@ const INITIAL_TEMPLATES = [
             { id: 'b2', name: '古早味滷排骨便當', price: 95, desc: '特製滷汁，經典口味', isHidden: false },
             { id: 'b3', name: '香酥炸排骨便當', price: 95, desc: '外酥內嫩，傳統美味', isHidden: false },
             { id: 'b4', name: '鹽烤鯖魚便當', price: 105, desc: '挪威鯖魚，鮮美營養', isHidden: false },
-            { id: 'b18', name: '素食什錦便當', price: 85, desc: '豐富時蔬，全素可食', isHidden: false }
+            { id: 'b5', name: '蜜汁烤雞腿便當', price: 110, desc: '甜鹹適中，香氣四溢', isHidden: false },
+            { id: 'b6', name: '三杯雞便當', price: 100, desc: '台式經典，九層塔香', isHidden: false },
+            { id: 'b7', name: '蔥爆牛肉便當', price: 120, desc: '大火快炒，肉質軟嫩', isHidden: false },
+            { id: 'b8', name: '糖醋排骨便當', price: 105, desc: '酸甜開胃，老少咸宜', isHidden: false },
+            { id: 'b9', name: '控肉便當', price: 95, desc: '肥瘦相間，入口即化', isHidden: false },
+            { id: 'b10', name: '炸雞排便當', price: 100, desc: '比臉還大，超級滿足', isHidden: false },
+            { id: 'b11', name: '蒲燒鯛魚便當', price: 100, desc: '日式風味，甜醬烤製', isHidden: false },
+            { id: 'b12', name: '香煎鱈魚便當', price: 130, desc: '嚴選深海，鮮嫩多汁', isHidden: false },
+            { id: 'b13', name: '宮保雞丁便當', price: 100, desc: '微辣開胃，花生香脆', isHidden: false },
+            { id: 'b14', name: '黑胡椒豬排便當', price: 95, desc: '濃郁醬汁，下飯神物', isHidden: false },
+            { id: 'b15', name: '泰式椒麻雞便當', price: 115, desc: '酸辣帶勁，異國風味', isHidden: false },
+            { id: 'b16', name: '咖哩雞肉便當', price: 95, desc: '濃郁咖哩，馬鈴薯軟爛', isHidden: false },
+            { id: 'b17', name: '紅燒牛腩便當', price: 130, desc: '慢火燉煮，軟嫩入味', isHidden: false },
+            { id: 'b18', name: '素食什錦便當', price: 85, desc: '豐富時蔬，全素可食', isHidden: false },
+            { id: 'b19', name: '烤肉飯便當', price: 95, desc: '炭烤風味，經典不敗', isHidden: false },
+            { id: 'b20', name: '雙拼便當(雞+排)', price: 130, desc: '選擇困難症救星', isHidden: false }
         ]
     },
     { 
         id: 't2', name: '人氣飲料範本', type: 'drink', 
         menu: [
             { id: 'd1', name: '錫蘭紅茶', price: 30, desc: '茶香濃厚', isHidden: false },
+            { id: 'd2', name: '茉莉綠茶', price: 30, desc: '清新淡雅', isHidden: false },
             { id: 'd3', name: '四季春青茶', price: 30, desc: '回甘不澀', isHidden: false },
-            { id: 'd11', name: '珍珠奶茶', price: 55, desc: 'Q彈珍珠，經典必喝', isHidden: false },
-            { id: 'd21', name: '紅茶拿鐵', price: 60, desc: '新鮮鮮奶', isHidden: false },
-            { id: 'd31', name: '葡萄柚綠茶', price: 60, desc: '果肉滿滿', isHidden: false }
+            { id: 'd4', name: '黃金烏龍', price: 30, desc: '炭焙香氣', isHidden: false },
+            { id: 'd5', name: '冰淇淋紅茶', price: 50, desc: '香草冰淇淋', isHidden: false },
+            { id: 'd6', name: '多多綠茶', price: 45, desc: '酸甜滋味', isHidden: false },
+            { id: 'd7', name: '檸檬紅茶', price: 45, desc: '新鮮現搾', isHidden: false },
+            { id: 'd8', name: '百香綠茶', price: 45, desc: '果香濃郁', isHidden: false },
+            { id: 'd9', name: '葡萄柚綠茶', price: 55, desc: '滿滿果肉', isHidden: false },
+            { id: 'd10', name: '鮮榨柳橙綠', price: 60, desc: '富含維他命C', isHidden: false },
+            { id: 'd11', name: '珍珠奶茶', price: 50, desc: 'Q彈珍珠', isHidden: false },
+            { id: 'd12', name: '波霸奶茶', price: 50, desc: '大顆滿足', isHidden: false },
+            { id: 'd13', name: '椰果奶茶', price: 50, desc: '口感豐富', isHidden: false },
+            { id: 'd14', name: '布丁奶茶', price: 50, desc: '一整顆統一布丁', isHidden: false },
+            { id: 'd15', name: '仙草凍奶茶', price: 50, desc: '滑順消暑', isHidden: false },
+            { id: 'd16', name: '烏龍奶茶', price: 50, desc: '茶香奶香交織', isHidden: false },
+            { id: 'd17', name: '阿華田', price: 50, desc: '巧克力麥芽', isHidden: false },
+            { id: 'd18', name: '紅茶拿鐵', price: 60, desc: '新鮮小農鮮乳', isHidden: false },
+            { id: 'd19', name: '綠茶拿鐵', price: 60, desc: '茉香鮮奶', isHidden: false },
+            { id: 'd20', name: '烏龍拿鐵', price: 60, desc: '炭焙鮮奶茶', isHidden: false },
+            { id: 'd21', name: '珍珠鮮奶茶', price: 65, desc: '鮮奶+Q彈珍珠', isHidden: false },
+            { id: 'd22', name: '波霸抹茶拿鐵', price: 70, desc: '日式抹茶', isHidden: false },
+            { id: 'd23', name: '黑糖珍珠鮮奶', price: 70, desc: '無茶咖啡因', isHidden: false },
+            { id: 'd24', name: '觀音拿鐵', price: 60, desc: '鐵觀音鮮奶', isHidden: false },
+            { id: 'd25', name: '冬瓜茶', price: 30, desc: '古早味', isHidden: false },
+            { id: 'd26', name: '冬瓜檸檬', price: 40, desc: '酸甜解渴', isHidden: false },
+            { id: 'd27', name: '冬瓜鮮奶', price: 50, desc: '順口香甜', isHidden: false },
+            { id: 'd28', name: '蜂蜜綠茶', price: 40, desc: '純天然蜂蜜', isHidden: false },
+            { id: 'd29', name: '蜜茶', price: 35, desc: '清甜解渴', isHidden: false },
+            { id: 'd30', name: '鮮柚QQ', price: 60, desc: '葡萄柚加珍珠椰果', isHidden: false }
         ]
     }
 ];
@@ -91,20 +131,24 @@ onValue(ref(db, '/'), (snapshot) => {
     }
 
     // 2. Load data from Firebase
-    stores = data.bento_stores ? (Array.isArray(data.bento_stores) ? data.bento_stores : Object.values(data.bento_stores)) : [];
-    // Ensure each store's menu is also an array
+    stores = data.bento_stores ? (Array.isArray(data.bento_stores) ? data.bento_stores : Object.values(data.bento_stores)).filter(Boolean) : [];
+    // Ensure each store's menu is also an array and remove nulls
     stores.forEach(s => {
-        if (s.menu && !Array.isArray(s.menu)) s.menu = Object.values(s.menu);
+        if (!s.menu) s.menu = [];
+        else if (!Array.isArray(s.menu)) s.menu = Object.values(s.menu);
+        s.menu = s.menu.filter(Boolean);
     });
     
-    templates = data.bento_templates ? (Array.isArray(data.bento_templates) ? data.bento_templates : Object.values(data.bento_templates)) : INITIAL_TEMPLATES;
+    templates = data.bento_templates ? (Array.isArray(data.bento_templates) ? data.bento_templates : Object.values(data.bento_templates)).filter(Boolean) : INITIAL_TEMPLATES;
     // Ensure each template's menu is also an array
     templates.forEach(t => {
-        if (t.menu && !Array.isArray(t.menu)) t.menu = Object.values(t.menu);
+        if (!t.menu) t.menu = [];
+        else if (!Array.isArray(t.menu)) t.menu = Object.values(t.menu);
+        t.menu = t.menu.filter(Boolean);
     });
     
     // Convert object orders to array if needed and sort by newest
-    orders = data.bento_orders ? (Array.isArray(data.bento_orders) ? data.bento_orders : Object.values(data.bento_orders)) : [];
+    orders = data.bento_orders ? (Array.isArray(data.bento_orders) ? data.bento_orders : Object.values(data.bento_orders)).filter(Boolean) : [];
     orders.sort((a, b) => b.id - a.id);
     
     selectedBentoStoreId = data.active_bento_id || '';
@@ -452,17 +496,23 @@ function setupEventListeners() {
     };
 
     // --- Routing Logic ---
+    let isInitialLoad = true;
     function handleRouting() {
-        const hash = window.location.hash.replace('#', '') || 'user-view';
-        const navItem = document.querySelector(`.nav-item[data-view="${hash}"]`);
+        let hash = window.location.hash.replace('#', '') || 'user-view';
         
+        // Prevent jumping to admin modal on initial direct site load
+        if (isInitialLoad && hash === 'admin-view' && !isAdminAuthenticated) {
+            window.location.hash = ''; // Clear hash
+            hash = 'user-view';
+        }
+        isInitialLoad = false;
+
+        const navItem = document.querySelector(`.nav-item[data-view="${hash}"]`);
         if (!navItem) return;
 
         // Check authentication for admin view
         if (hash === 'admin-view' && !isAdminAuthenticated) {
             document.getElementById('auth-modal').classList.add('active');
-            // Reset hash to user-view if they cancel or aren't logged in
-            // (The modal's "Return" button will handle this)
             return;
         }
 
@@ -553,15 +603,20 @@ function setupEventListeners() {
 
     const loadSampleBtn = document.getElementById('load-sample-btn');
     if (loadSampleBtn) loadSampleBtn.addEventListener('click', () => {
-        if (confirm('這將會清空目前的所有商家與菜單，並重新載入範本資料，確定嗎？')) {
-            stores = [
-                { id: 's1', name: '美味王便當店', type: 'bento', menu: JSON.parse(JSON.stringify(INITIAL_TEMPLATES[0].menu)) },
-                { id: 's2', name: '手搖飲範本店家', type: 'drink', menu: JSON.parse(JSON.stringify(INITIAL_TEMPLATES[1].menu)) }
-            ];
-            selectedBentoStoreId = 's1';
-            selectedDrinkStoreId = 's2';
+        if (confirm('這將會新增示範的便當店與飲料店資料到您的清單中，確定嗎？')) {
+            const newBentoStoreId = 's' + Date.now() + '_b';
+            const newDrinkStoreId = 's' + Date.now() + '_d';
+            
+            stores.push(
+                { id: newBentoStoreId, name: '美味王便當店 (示範)', type: 'bento', menu: JSON.parse(JSON.stringify(INITIAL_TEMPLATES[0].menu)) },
+                { id: newDrinkStoreId, name: '手搖飲示範店家 (示範)', type: 'drink', menu: JSON.parse(JSON.stringify(INITIAL_TEMPLATES[1].menu)) }
+            );
+            
+            if (!selectedBentoStoreId) selectedBentoStoreId = newBentoStoreId;
+            if (!selectedDrinkStoreId) selectedDrinkStoreId = newDrinkStoreId;
+            
             saveData();
-            showToast('已成功載入範本資料！');
+            showToast('已成功載入示範資料！');
         }
     });
 
