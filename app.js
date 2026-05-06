@@ -455,9 +455,14 @@ function renderMyOrders() {
     myOrdersSection.style.display = 'block';
     myOrdersList.innerHTML = myOrders.map(order => `
         <div class="my-order-card">
-            <div class="my-order-header">
-                <span>訂單時間：${order.time}</span>
-                <span>總計：$${order.total}</span>
+            <div class="my-order-header" style="align-items: flex-start;">
+                <div>
+                    <span>訂單時間：${order.time}</span><br>
+                    <span style="font-size: 14px; font-weight: normal; color: var(--text-muted);">總計：$${order.total}</span>
+                </div>
+                <span style="color: ${order.isPaid ? 'var(--success)' : 'var(--danger)'}; font-size: 13px; align-self: flex-start; background: ${order.isPaid ? '#e8f8f5' : '#fdedec'}; padding: 4px 8px; border-radius: 6px; border: 1px solid ${order.isPaid ? 'var(--success)' : 'var(--danger)'}; font-weight: 800;">
+                    ${order.isPaid ? '✅ 已繳費' : '⚠️ 尚未繳費'}
+                </span>
             </div>
             <div class="my-order-items">
                 ${order.items.map(i => `${i.name}${i.type === 'drink' ? ` (${i.sugar}/${i.ice})` : ''} x ${i.quantity}`).join('<br>')}
@@ -568,16 +573,30 @@ function renderAdmin() {
     });
     if (adminStatsList) adminStatsList.innerHTML = Object.entries(stats).map(([name, qty]) => `<div class="stat-item"><span>${name}</span><span>${qty} 份</span></div>`).join('') || '<p style="opacity:0.7">尚無訂單統計</p>';
     if (adminOrdersList) adminOrdersList.innerHTML = orders.map(order => `
-        <div class="order-card">
+        <div class="order-card" style="border-left: 4px solid ${order.isPaid ? 'var(--success)' : 'var(--danger)'};">
             <div class="order-card-header"><span>👤 ${order.userName}</span><span>$${order.total}</span></div>
             <div class="order-card-details">
                 ${order.items.map(i => `${i.name}${i.type==='drink'?'('+i.sugar+'/'+i.ice+')':''} x ${i.quantity}`).join(', ')}
             </div>
-            <div class="order-time">${order.time}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; border-top: 1px dashed #eee; padding-top: 10px;">
+                <div class="order-time">${order.time}</div>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; font-weight: bold; color: ${order.isPaid ? 'var(--success)' : 'var(--text-muted)'}; background: #f5f6fa; padding: 4px 10px; border-radius: 6px;">
+                    <input type="checkbox" ${order.isPaid ? 'checked' : ''} onchange="togglePayment(${order.id})" style="width: 16px; height: 16px; cursor: pointer;">
+                    ${order.isPaid ? '✅ 已收帳' : '未收帳'}
+                </label>
+            </div>
         </div>`).join('') || '<p style="text-align:center; padding:40px; opacity:0.5">目前還沒有人訂餐喔</p>';
     renderAdminStores();
     renderAdminTemplates();
 }
+
+window.togglePayment = (orderId) => {
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+        order.isPaid = !order.isPaid;
+        saveData(); // Syncs to Firebase immediately!
+    }
+};
 
 function renderAdminStores() {
     if (!storesAdminList) return;
@@ -991,7 +1010,8 @@ function setupEventListeners() {
             deviceId: deviceId, // <--- New: Link order to this device
             items: JSON.parse(JSON.stringify(cart)), 
             total: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0), 
-            time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+            time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+            isPaid: false // NEW: Track payment status
         });
         
         saveData(); // Instantly syncs the new order to Firebase!
@@ -1036,6 +1056,12 @@ function setupEventListeners() {
         let text = `🍱 便當訂購統計 (${new Date().toLocaleDateString()})\n====================\n`;
         Object.entries(stats).forEach(([name, qty]) => text += `${name}：${qty} 份\n`);
         text += `====================\n總計訂單數：${orders.length} 筆`;
+        
+        const unpaidUsers = orders.filter(o => !o.isPaid).map(o => o.userName);
+        if (unpaidUsers.length > 0) {
+            text += `\n\n⚠️ 【未繳費名單】：\n${unpaidUsers.join(', ')}\n請盡速將款項交給負責人喔！`;
+        }
+
         navigator.clipboard.writeText(text).then(() => alert('已複製到剪貼簿！'));
     });
 }
