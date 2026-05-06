@@ -5,7 +5,7 @@
     --primary: #FF6B6B;
     --primary-dark: #ee5253;
     --primary-light: #ff9f43;
-    --primary-gradient: linear-gradient(135deg, #FF6B6B 0%, #ff9f43 100%);
+    --primary-gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     
     /* Semantic Colors */
     --danger: #ff4757;
@@ -92,7 +92,7 @@ body {
 .nav-item.active {
     background: var(--primary-gradient);
     color: white;
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
 
@@ -334,7 +334,7 @@ body {
     font-size: 20px;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(255, 107, 107, 0.35);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
     transition: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
     display: flex;
     align-items: center;
@@ -358,7 +358,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     z-index: 900;
     opacity: 0;
     transform: translateY(20px) scale(0.9);
@@ -525,9 +525,9 @@ body {
 .btn.primary {
     background: var(--primary-gradient);
     color: white;
-    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
-.btn.primary:active { transform: scale(0.97); box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2); }
+.btn.primary:active { transform: scale(0.97); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
 .btn.full { width: 100%; }
 .btn.flex-1 { flex: 1; }
 .btn.secondary { background: #f1f2f6; color: var(--text-main); }
@@ -621,7 +621,7 @@ select {
     width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #dcdde1; background: #f5f6fa;
     font-family: inherit; font-size: 15px; font-weight: 600; transition: 0.3s;
 }
-.form-group input:focus { outline: none; border-color: var(--primary-light); background: white; box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.1); }
+.form-group input:focus { outline: none; border-color: var(--primary-light); background: white; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05); }
 .modal-footer { display: flex; gap: 12px; margin-top: 24px; }
 
 .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-weight: 700; background: var(--glass-bg); border-radius: var(--radius-lg); border: 2px dashed var(--glass-border);}
