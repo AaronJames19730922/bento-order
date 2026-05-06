@@ -142,6 +142,7 @@ let selectedBentoStoreId = '';
 let selectedDrinkStoreId = '';
 let isAppInitialized = false;
 let orderDeadline = ''; // New: Deadline Time
+let currentTheme = 'theme-1';
 
 let expandedAdminStores = new Set();
 let expandedAdminTemplates = new Set();
@@ -210,6 +211,10 @@ onValue(ref(db, '/'), (snapshot) => {
     selectedDrinkStoreId = data.active_drink_id || '';
     adminPassword = data.admin_password || 'admin';
     orderDeadline = data.order_deadline || '';
+    currentTheme = data.theme || 'theme-1';
+    
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeUI();
 
     const currentPwdInput = document.getElementById('current-password-input');
     if (currentPwdInput) currentPwdInput.value = adminPassword;
@@ -237,7 +242,8 @@ function saveData() {
         active_bento_id: selectedBentoStoreId,
         active_drink_id: selectedDrinkStoreId,
         admin_password: adminPassword,
-        order_deadline: orderDeadline
+        order_deadline: orderDeadline,
+        theme: currentTheme
     });
 }
 
@@ -737,7 +743,24 @@ window.editTemplateName = (id) => {
         showToast('已成功解除時間限制！');
     });
 
+function updateThemeUI() {
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === currentTheme);
+    });
+}
+
 function setupEventListeners() {
+    // Theme Selectors
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentTheme = btn.dataset.theme;
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            updateThemeUI();
+            saveData();
+            showToast('系統主題已更新！');
+        });
+    });
+
     window.goToUserView = () => {
         document.getElementById('auth-modal').classList.remove('active');
         window.location.hash = 'user-view';

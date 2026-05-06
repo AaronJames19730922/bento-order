@@ -714,3 +714,64 @@ select {
     border-top: 1px solid var(--border);
     padding-top: 12px;
 }
+
+/* =========================================
+   Deadline Banner & Theme Grid
+   ========================================= */
+.deadline-banner {
+    padding: 12px;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+    box-shadow: var(--shadow);
+}
+.deadline-banner.active {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+.deadline-banner.passed {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+.theme-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s, border 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.theme-btn:hover {
+    transform: scale(1.1);
+}
+.theme-btn.active {
+    border-color: #333;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* 12 Themes */
+[data-theme="theme-1"] { --primary: #FF6B6B; --primary-light: #FF8787; --primary-dark: #E03131; --secondary: #4ECDC4; }
+[data-theme="theme-2"] { --primary: #4DABF7; --primary-light: #74C0FC; --primary-dark: #228BE6; --secondary: #FF922B; }
+[data-theme="theme-3"] { --primary: #51CF66; --primary-light: #8CE99A; --primary-dark: #2B8A3E; --secondary: #FCC419; }
+[data-theme="theme-4"] { --primary: #CC5DE8; --primary-light: #E599F7; --primary-dark: #9C36B5; --secondary: #20C997; }
+[data-theme="theme-5"] { --primary: #FF922B; --primary-light: #FFB067; --primary-dark: #D9480F; --secondary: #339AF0; }
+[data-theme="theme-6"] { --primary: #20C997; --primary-light: #63E6BE; --primary-dark: #08A082; --secondary: #FF6B6B; }
+[data-theme="theme-7"] { --primary: #F06595; --primary-light: #FAA2C1; --primary-dark: #A61E4D; --secondary: #845EF7; }
+[data-theme="theme-8"] { --primary: #845EF7; --primary-light: #B197FC; --primary-dark: #5F3DC4; --secondary: #F06595; }
+[data-theme="theme-9"] { --primary: #FFD43B; --primary-light: #FFE066; --primary-dark: #E67700; --secondary: #4DABF7; }
+[data-theme="theme-10"] { --primary: #5C7CFA; --primary-light: #91A7FF; --primary-dark: #364FC7; --secondary: #20C997; }
+[data-theme="theme-11"] { --primary: #38D9A9; --primary-light: #69DB7C; --primary-dark: #2B8A3E; --secondary: #CC5DE8; }
+[data-theme="theme-12"] { --primary: #212529; --primary-light: #495057; --primary-dark: #000000; --secondary: #FAB005; }
