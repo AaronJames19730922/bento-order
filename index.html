@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美味便當訂購系統</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff6b6b">
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <div class="nav-item active" data-view="user-view">
+                <span class="icon">🍱</span>
+                <span>我要訂餐</span>
+            </div>
+            <div class="nav-item" data-view="admin-view">
+                <span class="icon">📊</span>
+                <span>管理後台</span>
+            </div>
+        </nav>
+
+        <main id="view-container">
+            <!-- User View -->
+            <section id="user-view" class="view active">
+                <header class="view-header">
+                    <h1>今日選單</h1>
+                    <div class="user-id-section">
+                        <label>👤 訂餐人姓名：</label>
+                        <input type="text" id="user-name" placeholder="請輸入您的姓名 (必填)" required>
+                    </div>
+                </header>
+
+                <div id="today-stores-display" class="today-stores-banner">
+                    <div class="banner-item">
+                        <span class="label">🍱 今日便當：</span>
+                        <span id="active-bento-name" class="store-name">載入中...</span>
+                    </div>
+                    <div class="banner-item">
+                        <span class="label">🥤 今日飲料：</span>
+                        <span id="active-drink-name" class="store-name">載入中...</span>
+                    </div>
+                </div>
+
+                <div class="category-tabs">
+                    <button class="cat-tab active" data-category="bento">便當專區</button>
+                    <button class="cat-tab" data-category="drink">飲料專區</button>
+                </div>
+
+                <div id="menu-list" class="menu-grid">
+                    <!-- Items will be injected here -->
+                </div>
+            </section>
+
+            <!-- Admin View -->
+            <section id="admin-view" class="view">
+                <header class="view-header">
+                    <h1>管理中心</h1>
+                    <div class="admin-tabs">
+                        <button class="admin-sub-tab active" data-subview="order-mgmt">訂單匯總</button>
+                        <button class="admin-sub-tab" data-subview="store-mgmt">商家與菜單</button>
+                        <button class="admin-sub-tab" data-subview="template-mgmt">範本管理</button>
+                        <button class="admin-sub-tab" data-subview="system-mgmt">系統設定 ⚙️</button>
+                    </div>
+                </header>
+
+                <!-- Order Management Subview -->
+                <div id="order-mgmt" class="subview active">
+                    <div class="admin-store-lock">
+                        <h3>🔒 指定今日店家</h3>
+                        <div class="admin-selectors">
+                            <div class="selector-group">
+                                <label>指定便當店：</label>
+                                <select id="bento-store-select"></select>
+                            </div>
+                            <div class="selector-group">
+                                <label>指定飲料店：</label>
+                                <select id="drink-store-select"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin-actions">
+                        <button id="copy-summary" class="btn secondary">複製匯總文字</button>
+                        <button id="clear-orders" class="btn danger">清空今日訂單</button>
+                    </div>
+                    <div id="admin-summary" class="summary-card">
+                        <h2>數量統計</h2>
+                        <div id="stats-list"></div>
+                    </div>
+                    <div id="orders-list" class="orders-container"></div>
+                </div>
+
+                <!-- Store Management Subview -->
+                <div id="store-mgmt" class="subview">
+                    <div class="admin-actions">
+                        <button id="add-store-btn" class="btn primary">➕ 新增商家</button>
+                        <button id="load-sample-btn" class="btn secondary">🚀 載入範本</button>
+                    </div>
+                    <div id="stores-admin-list" class="stores-grid">
+                        <!-- Stores will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Template Management Subview -->
+                <div id="template-mgmt" class="subview">
+                    <div class="admin-actions">
+                        <p class="hint">在這裡管理您的通用菜單範本，可隨時套用到新店家。</p>
+                    </div>
+                    <div id="templates-admin-list" class="stores-grid">
+                        <!-- Templates will be injected here -->
+                    </div>
+                </div>
+
+                <!-- System Management Subview -->
+                <div id="system-mgmt" class="subview">
+                    <div class="summary-card">
+                        <h2>🔒 安全設定</h2>
+                        <div class="form-group">
+                            <label>目前後台密碼 (預設: admin)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="password" id="current-password-input" value="載入中..." disabled style="background: #f5f6fa; border: none; color: #636e72;">
+                                <button id="toggle-pwd-visibility" class="btn secondary">👁️ 顯示</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 24px;">
+                            <label>修改密碼</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="new-password-input" placeholder="輸入新密碼">
+                                <button id="save-password-btn" class="btn primary">更新密碼</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Floating Cart Bar (Minimzed) -->
+        <div id="cart-bar" class="cart-bar">
+            <div class="cart-bar-info">
+                <span class="bar-count">0</span>
+                <span class="bar-total">總計 $0</span>
+            </div>
+            <button class="btn-view-cart">查看清單 🛒</button>
+        </div>
+
+        <!-- Floating Cart Drawer -->
+        <div id="cart-drawer" class="cart-drawer">
+            <div class="cart-handle"></div>
+            <div class="cart-header">
+                <h3>您的訂單</h3>
+                <span id="drawer-cart-count">0 項</span>
+            </div>
+            <div id="cart-items" class="cart-items">
+                <!-- Cart items here -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>總計</span>
+                    <span id="cart-total-amount">$0</span>
+                </div>
+                <div class="cart-actions">
+                    <button id="clear-cart" class="btn ghost danger">放棄這單 🗑️</button>
+                    <button id="submit-order" class="btn primary flex-1">提交訂單</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Management Modal -->
+    <div id="item-modal" class="modal">
+        <div class="modal-content wide">
+            <h2 id="item-modal-title">新增餐點</h2>
+            <input type="hidden" id="edit-item-id">
+            <input type="hidden" id="edit-item-store-id">
+            <input type="hidden" id="edit-item-is-template">
+            <div class="form-group">
+                <label>餐點名稱</label>
+                <input type="text" id="item-name-input" placeholder="例如：招牌雞腿便當">
+            </div>
+            <div class="form-group">
+                <label>價格</label>
+                <input type="number" id="item-price-input" placeholder="例如：110">
+            </div>
+            <div class="form-group">
+                <label>描述 (選填)</label>
+                <input type="text" id="item-desc-input" placeholder="例如：酥脆雞腿搭配三樣鮮蔬">
+            </div>
+            <div class="form-group">
+                <label>圖片網址 (選填)</label>
+                <input type="text" id="item-img-input" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="modal-footer">
+                <button id="save-item-btn" class="btn primary">儲存</button>
+                <button class="btn ghost close-modal-btn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Management Modal -->
+    <div id="store-modal" class="modal">
+        <div class="modal-content">
+            <h2>新增商家</h2>
+            <div class="form-group">
+                <label>商家名稱</label>
+                <input type="text" id="store-name-input" placeholder="例如：老王便當">
+            </div>
+            <div class="form-group">
+                <label>類別</label>
+                <select id="store-type-input">
+                    <option value="bento">便當</option>
+                    <option value="drink">飲料</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="save-store-btn" class="btn primary">儲存</button>
+                <button class="btn ghost close-modal-btn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <h2>🔒 需要管理員權限</h2>
+            <p style="margin-bottom: 20px; color: var(--text-muted); font-size: 14px;">請輸入後台管理密碼以繼續。</p>
+            <div class="form-group">
+                <input type="password" id="auth-password-input" placeholder="請輸入密碼">
+            </div>
+            <div class="modal-footer">
+                <button id="auth-submit-btn" class="btn primary flex-1">登入</button>
+                <button class="btn ghost flex-1" onclick="goToUserView()">返回點餐</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="toast" class="toast">
+        <span class="toast-icon">✅</span>
+        <span class="toast-msg">訂購成功！</span>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
