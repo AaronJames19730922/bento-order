@@ -417,7 +417,9 @@ function renderAdminStores() {
     storesAdminList.innerHTML = stores.map(store => `
         <div class="store-admin-card">
             <div class="store-admin-header">
-                <h3>${store.type === 'bento' ? '🍱' : '🥤'} ${store.name}</h3>
+                <h3 style="display:flex; align-items:center;">${store.type === 'bento' ? '🍱' : '🥤'} ${store.name} 
+                    <button class="btn-text muted" style="font-size: 13px; margin-left: 10px; opacity:0.8;" onclick="editStoreName('${store.id}')">✏️修改</button>
+                </h3>
                 <div class="store-actions">
                     <button class="btn-text secondary" onclick="openImportModal('${store.id}')">📥 套用範本</button>
                     <button class="btn-icon danger" onclick="deleteStore('${store.id}')">🗑️</button>
@@ -454,7 +456,9 @@ function renderAdminTemplates() {
     templatesAdminList.innerHTML = templates.map(template => `
         <div class="store-admin-card template-card">
             <div class="store-admin-header">
-                <h3>📋 ${template.name} (${template.type === 'bento' ? '便當' : '飲料'})</h3>
+                <h3 style="display:flex; align-items:center;">📋 ${template.name} (${template.type === 'bento' ? '便當' : '飲料'})
+                    <button class="btn-text muted" style="font-size: 13px; margin-left: 10px; opacity:0.8;" onclick="editTemplateName('${template.id}')">✏️修改</button>
+                </h3>
             </div>
             <div class="admin-menu-list">
                 ${(template.menu || []).map(item => `
@@ -507,6 +511,28 @@ window.deleteTemplateItem = (templateId, itemId) => {
     const template = templates.find(t => t.id === templateId);
     template.menu = template.menu.filter(i => i.id !== itemId);
     saveData();
+};
+
+window.editStoreName = (id) => {
+    const store = stores.find(s => s.id === id);
+    if (!store) return;
+    const newName = prompt('請輸入新的店家名稱：', store.name);
+    if (newName && newName.trim() !== '') {
+        store.name = newName.trim();
+        saveData();
+        showToast('店家名稱已更新！');
+    }
+};
+
+window.editTemplateName = (id) => {
+    const template = templates.find(t => t.id === id);
+    if (!template) return;
+    const newName = prompt('請輸入新的範本名稱：', template.name);
+    if (newName && newName.trim() !== '') {
+        template.name = newName.trim();
+        saveData();
+        showToast('範本名稱已更新！');
+    }
 };
 
 function setupEventListeners() {
@@ -639,6 +665,17 @@ function setupEventListeners() {
             showToast('已成功載入示範資料！');
         }
     });
+
+    const restoreTemplatesBtn = document.getElementById('restore-templates-btn');
+    if (restoreTemplatesBtn) {
+        restoreTemplatesBtn.addEventListener('click', () => {
+            if (confirm('這將會還原系統預設的「標準便當範本」與「人氣飲料範本」(包含 20 便當與 50 飲料)，這不會影響您現有的店家資料，確定嗎？')) {
+                templates = JSON.parse(JSON.stringify(INITIAL_TEMPLATES));
+                saveData();
+                showToast('已完美還原預設的 50 飲料/20 便當！');
+            }
+        });
+    }
 
     document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', () => btn.closest('.modal').classList.remove('active')));
 
