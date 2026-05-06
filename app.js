@@ -1,3 +1,20 @@
+// Check for client mode to hide admin navbar completely for mobile users who scan the QR code
+if (window.location.search.includes('client=1')) {
+    const style = document.createElement('style');
+    style.innerHTML = '.main-nav { display: none !important; } body { padding-bottom: 20px; }';
+    document.head.appendChild(style);
+}
+
+// Generate QR Code dynamically based on current domain
+window.addEventListener('DOMContentLoaded', () => {
+    const qrImage = document.getElementById('share-qr-code');
+    if (qrImage) {
+        // Create share URL that appends ?client=1 to hide admin tools
+        const shareUrl = window.location.origin + window.location.pathname + '?client=1';
+        qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareUrl)}`;
+    }
+});
+
 // Import Firebase SDKs from CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
