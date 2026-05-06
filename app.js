@@ -91,8 +91,17 @@ onValue(ref(db, '/'), (snapshot) => {
     }
 
     // 2. Load data from Firebase
-    stores = data.bento_stores || [];
-    templates = data.bento_templates || INITIAL_TEMPLATES;
+    stores = data.bento_stores ? (Array.isArray(data.bento_stores) ? data.bento_stores : Object.values(data.bento_stores)) : [];
+    // Ensure each store's menu is also an array
+    stores.forEach(s => {
+        if (s.menu && !Array.isArray(s.menu)) s.menu = Object.values(s.menu);
+    });
+    
+    templates = data.bento_templates ? (Array.isArray(data.bento_templates) ? data.bento_templates : Object.values(data.bento_templates)) : INITIAL_TEMPLATES;
+    // Ensure each template's menu is also an array
+    templates.forEach(t => {
+        if (t.menu && !Array.isArray(t.menu)) t.menu = Object.values(t.menu);
+    });
     
     // Convert object orders to array if needed and sort by newest
     orders = data.bento_orders ? (Array.isArray(data.bento_orders) ? data.bento_orders : Object.values(data.bento_orders)) : [];
