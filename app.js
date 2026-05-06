@@ -815,14 +815,18 @@ function setupEventListeners() {
             return;
         }
         if (cart.length === 0) return alert('購物車是空的喔！');
+
+        // Remember user name in localStorage
+        localStorage.setItem('bento_user_name', name);
         
         // Push order to the orders array
         orders.unshift({ 
             id: Date.now(), 
             userName: name, 
+            deviceId: deviceId, // <--- New: Link order to this device
             items: JSON.parse(JSON.stringify(cart)), 
             total: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0), 
-            time: new Date().toLocaleString() 
+            time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
         });
         
         saveData(); // Instantly syncs the new order to Firebase!
@@ -832,6 +836,10 @@ function setupEventListeners() {
         renderMenu();
         cartDrawer.classList.remove('open');
         showToast('訂購成功！');
+
+        // Scroll to my orders section so they see it immediately
+        const myOrdersSection = document.getElementById('my-orders-section');
+        if (myOrdersSection) myOrdersSection.scrollIntoView({ behavior: 'smooth' });
     });
 
     const clearCartBtn = document.getElementById('clear-cart');
