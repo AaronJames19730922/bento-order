@@ -682,3 +682,35 @@ select {
         display: none !important;
     }
 }
+
+/* =========================================
+   My Orders Section
+   ========================================= */
+.my-order-card {
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary);
+}
+.my-order-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--primary-dark);
+}
+.my-order-items {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+.my-order-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+}

@@ -15,6 +15,13 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Device ID tracking for "My Orders" feature
+let deviceId = localStorage.getItem('bento_device_id');
+if (!deviceId) {
+    deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('bento_device_id', deviceId);
+}
+
 // Import Firebase SDKs from CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -205,6 +212,7 @@ onValue(ref(db, '/'), (snapshot) => {
     renderStoreSelectors();
     renderAdmin();
     renderMenu();
+    renderMyOrders();
 });
 
 // Write to Firebase instead of LocalStorage
@@ -319,6 +327,61 @@ window.updateQty = (id, delta, storeId) => {
     updateCartUI();
     renderMenu();
 };
+
+window.editMyOrder = (orderId) => {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+    if (confirm('即將載入此訂單到購物車以便修改，原本的訂單將被取消，確定嗎？')) {
+        // Cancel the order
+        orders = orders.filter(o => o.id !== orderId);
+        saveData(); 
+        
+        // Load into cart
+        cart = JSON.parse(JSON.stringify(order.items)); // Deep copy
+        document.getElementById('user-name').value = order.userName;
+        updateCartUI();
+        cartDrawer.classList.add('open');
+        showToast('已載入購物車，請修改後重新送出！');
+    }
+};
+
+window.cancelMyOrder = (orderId) => {
+    if (confirm('確定要取消這筆訂單嗎？')) {
+        orders = orders.filter(o => o.id !== orderId);
+        saveData();
+        showToast('訂單已取消！');
+    }
+};
+
+function renderMyOrders() {
+    const myOrdersSection = document.getElementById('my-orders-section');
+    const myOrdersList = document.getElementById('my-orders-list');
+    if (!myOrdersSection || !myOrdersList) return;
+
+    const myOrders = orders.filter(o => o.deviceId === deviceId);
+    
+    if (myOrders.length === 0) {
+        myOrdersSection.style.display = 'none';
+        return;
+    }
+    
+    myOrdersSection.style.display = 'block';
+    myOrdersList.innerHTML = myOrders.map(order => `
+        <div class="my-order-card">
+            <div class="my-order-header">
+                <span>訂單時間：${order.time}</span>
+                <span>總計：$${order.total}</span>
+            </div>
+            <div class="my-order-items">
+                ${order.items.map(i => `${i.name}${i.type === 'drink' ? ` (${i.sugar}/${i.ice})` : ''} x ${i.quantity}`).join('<br>')}
+            </div>
+            <div class="my-order-actions">
+                <button class="btn-text primary" onclick="editMyOrder(${order.id})">✏️ 修改訂單</button>
+                <button class="btn-text danger" onclick="cancelMyOrder(${order.id})">❌ 取消</button>
+            </div>
+        </div>
+    `).join('');
+}
 
 function updateCartUI() {
     if (!cartItems) return;
@@ -592,6 +655,10 @@ function setupEventListeners() {
 
     window.addEventListener('hashchange', handleRouting);
     handleRouting(); // Handle initial load
+
+    // Load saved username if exists
+    const savedName = localStorage.getItem('bento_user_name');
+    if (savedName && userNameInput) userNameInput.value = savedName;
 
     document.querySelectorAll('.nav-item').forEach(nav => {
         nav.addEventListener('click', () => {
