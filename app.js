@@ -141,6 +141,7 @@ let currentCategory = 'bento';
 let selectedBentoStoreId = '';
 let selectedDrinkStoreId = '';
 let isAppInitialized = false;
+let orderDeadline = ''; // New: Deadline Time
 
 let adminPassword = 'admin';
 let isAdminAuthenticated = false;
@@ -205,6 +206,7 @@ onValue(ref(db, '/'), (snapshot) => {
     selectedBentoStoreId = data.active_bento_id || '';
     selectedDrinkStoreId = data.active_drink_id || '';
     adminPassword = data.admin_password || 'admin';
+    orderDeadline = data.order_deadline || '';
 
     const currentPwdInput = document.getElementById('current-password-input');
     if (currentPwdInput) currentPwdInput.value = adminPassword;
@@ -220,6 +222,7 @@ onValue(ref(db, '/'), (snapshot) => {
     renderAdmin();
     renderMenu();
     renderMyOrders();
+    updateDeadlineUI();
 });
 
 // Write to Firebase instead of LocalStorage
@@ -230,7 +233,8 @@ function saveData() {
         bento_orders: orders,
         active_bento_id: selectedBentoStoreId,
         active_drink_id: selectedDrinkStoreId,
-        admin_password: adminPassword
+        admin_password: adminPassword,
+        order_deadline: orderDeadline
     });
 }
 
@@ -335,7 +339,73 @@ window.updateQty = (id, delta, storeId) => {
     renderMenu();
 };
 
+window.isDeadlinePassed = () => {
+    if (!orderDeadline) return false;
+    const now = new Date();
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+    
+    const [deadHours, deadMinutes] = orderDeadline.split(':').map(Number);
+    
+    if (currentHours > deadHours) return true;
+    if (currentHours === deadHours && currentMinutes >= deadMinutes) return true;
+    return false;
+};
+
+window.updateDeadlineUI = () => {
+    const banner = document.getElementById('deadline-banner');
+    const submitBtn = document.getElementById('submit-order');
+    const currentDisplay = document.getElementById('current-deadline-display');
+    const adminInput = document.getElementById('admin-deadline-input');
+    
+    if (adminInput && !adminInput.value && orderDeadline) {
+        adminInput.value = orderDeadline;
+    }
+
+    if (currentDisplay) {
+        currentDisplay.innerText = orderDeadline ? `目前設定截止時間：${orderDeadline}` : '目前無設定截止時間 (隨時可訂)';
+    }
+
+    if (!orderDeadline) {
+        if (banner) banner.style.display = 'none';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = '送出訂單';
+        }
+        return;
+    }
+
+    if (banner) banner.style.display = 'block';
+
+    if (window.isDeadlinePassed()) {
+        if (banner) {
+            banner.className = 'deadline-banner passed';
+            banner.innerHTML = `🛑 今日訂餐已於 ${orderDeadline} 截止，無法再新增或修改訂單！`;
+        }
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = '時間已截止';
+        }
+    } else {
+        if (banner) {
+            banner.className = 'deadline-banner active';
+            banner.innerHTML = `⚠️ 今日訂餐將於 <b>${orderDeadline}</b> 截止，請盡快送出！`;
+        }
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = '送出訂單';
+        }
+    }
+};
+
+// Check deadline every 30 seconds
+setInterval(() => {
+    if (orderDeadline) window.updateDeadlineUI();
+}, 30000);
+
+
 window.editMyOrder = (orderId) => {
+    if (window.isDeadlinePassed()) return alert('🛑 時間已經截止，無法更改訂單囉！');
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
     if (confirm('即將載入此訂單到購物車以便修改，原本的訂單將被取消，確定嗎？')) {
@@ -353,6 +423,7 @@ window.editMyOrder = (orderId) => {
 };
 
 window.cancelMyOrder = (orderId) => {
+    if (window.isDeadlinePassed()) return alert('🛑 時間已經截止，無法取消訂單囉！');
     if (confirm('確定要取消這筆訂單嗎？')) {
         orders = orders.filter(o => o.id !== orderId);
         saveData();
@@ -622,6 +693,23 @@ window.editTemplateName = (id) => {
     }
 };
 
+    const saveDeadlineBtn = document.getElementById('save-deadline-btn');
+    if (saveDeadlineBtn) saveDeadlineBtn.addEventListener('click', () => {
+        const timeInput = document.getElementById('admin-deadline-input').value;
+        if (!timeInput) return alert('請先選擇時間喔！');
+        orderDeadline = timeInput;
+        saveData();
+        showToast(`已成功設定截止時間為 ${timeInput}！`);
+    });
+
+    const clearDeadlineBtn = document.getElementById('clear-deadline-btn');
+    if (clearDeadlineBtn) clearDeadlineBtn.addEventListener('click', () => {
+        document.getElementById('admin-deadline-input').value = '';
+        orderDeadline = '';
+        saveData();
+        showToast('已成功解除時間限制！');
+    });
+
 function setupEventListeners() {
     window.goToUserView = () => {
         document.getElementById('auth-modal').classList.remove('active');
@@ -821,6 +909,11 @@ function setupEventListeners() {
             alert('請輸入您的姓名！');
             userNameInput.focus();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        if (window.isDeadlinePassed()) {
+            alert('🛑 抱歉，今日訂餐時間已經截止，無法再點餐囉！');
             return;
         }
 

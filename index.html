@@ -33,6 +33,9 @@
                         <p class="qr-title">📱 同事點餐請掃碼</p>
                         <img id="share-qr-code" src="" alt="QR Code" />
                     </div>
+                    
+                    <div id="deadline-banner" class="deadline-banner" style="display: none;"></div>
+
                     <h1>今日選單</h1>
                     <div class="user-id-section">
                         <label>👤 訂餐人姓名：</label>
@@ -85,6 +88,16 @@
 
                 <!-- Order Management Subview -->
                 <div id="order-mgmt" class="subview active">
+                    <div class="admin-store-lock" style="margin-bottom: 20px;">
+                        <h3>⏰ 訂餐截止時間設定</h3>
+                        <div class="selector-group" style="display: flex; flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+                            <input type="time" id="admin-deadline-input" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border);">
+                            <button id="save-deadline-btn" class="btn primary">設定截止</button>
+                            <button id="clear-deadline-btn" class="btn ghost">清除限制</button>
+                        </div>
+                        <p id="current-deadline-display" style="margin-top: 10px; font-size: 14px; font-weight: bold; color: var(--danger);"></p>
+                    </div>
+
                     <div class="admin-store-lock">
                         <h3>🔒 指定今日店家</h3>
                         <div class="admin-selectors">
