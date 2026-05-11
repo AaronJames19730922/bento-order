@@ -1,19 +1,29 @@
-// Check for client mode to hide admin navbar completely for mobile users who scan the QR code
-if (window.location.search.includes('client=1')) {
+// Multi-tenancy: Extract Room ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const roomId = urlParams.get('room') || 'default';
+const isClientMode = urlParams.get('client') === '1';
+
+// Generate QR Code dynamically based on current domain and Room ID
+window.addEventListener('DOMContentLoaded', () => {
+    const qrImage = document.getElementById('share-qr-code');
+    const roomIndicator = document.getElementById('room-indicator');
+    
+    if (roomIndicator) {
+        roomIndicator.innerText = `🏠 目前房間：${roomId === 'default' ? '預設大廳' : roomId}`;
+    }
+
+    if (qrImage) {
+        // Create share URL that appends room and client=1
+        const shareUrl = window.location.origin + window.location.pathname + `?room=${roomId}&client=1`;
+        qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareUrl)}`;
+    }
+});
+
+if (isClientMode) {
     const style = document.createElement('style');
     style.innerHTML = '.main-nav { display: none !important; } body { padding-bottom: 20px; }';
     document.head.appendChild(style);
 }
-
-// Generate QR Code dynamically based on current domain
-window.addEventListener('DOMContentLoaded', () => {
-    const qrImage = document.getElementById('share-qr-code');
-    if (qrImage) {
-        // Create share URL that appends ?client=1 to hide admin tools
-        const shareUrl = window.location.origin + window.location.pathname + '?client=1';
-        qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareUrl)}`;
-    }
-});
 
 // Device ID tracking for "My Orders" feature
 // Device ID tracking for "My Orders" feature
@@ -170,13 +180,14 @@ const storesAdminList = document.getElementById('stores-admin-list');
 const templatesAdminList = document.getElementById('templates-admin-list');
 
 // --- Real-time Sync with Firebase ---
-onValue(ref(db, '/'), (snapshot) => {
+const dbPath = roomId + '/';
+onValue(ref(db, dbPath), (snapshot) => {
     const data = snapshot.val();
     
     // 1. If database is completely empty, initialize it with default templates
     if (!data) {
         if (!isAppInitialized) {
-            set(ref(db, '/'), {
+            set(ref(db, dbPath), {
                 bento_stores: [
                     { id: 's1', name: '我的便當店', type: 'bento', menu: JSON.parse(JSON.stringify(INITIAL_TEMPLATES[0].menu)) },
                     { id: 's2', name: '我的飲料店', type: 'drink', menu: JSON.parse(JSON.stringify(INITIAL_TEMPLATES[1].menu)) }
@@ -247,7 +258,7 @@ onValue(ref(db, '/'), (snapshot) => {
 
 // Write to Firebase instead of LocalStorage
 function saveData() {
-    set(ref(db, '/'), {
+    set(ref(db, dbPath), {
         bento_stores: stores,
         bento_templates: templates,
         bento_orders: orders,
