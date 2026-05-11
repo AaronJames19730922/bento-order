@@ -140,8 +140,9 @@ let currentCategory = 'bento';
 
 let selectedBentoStoreId = '';
 let selectedDrinkStoreId = '';
+let bentoDeadline = ''; 
+let drinkDeadline = ''; 
 let isAppInitialized = false;
-let orderDeadline = ''; // New: Deadline Time
 let currentTheme = 'theme-1';
 let announcement = '';
 let orderLimit = 0; // 0 = unlimited
@@ -214,7 +215,8 @@ onValue(ref(db, '/'), (snapshot) => {
     selectedBentoStoreId = data.active_bento_id || '';
     selectedDrinkStoreId = data.active_drink_id || '';
     adminPassword = data.admin_password || 'admin';
-    orderDeadline = data.order_deadline || '';
+    bentoDeadline = data.bento_deadline || '';
+    drinkDeadline = data.drink_deadline || '';
     currentTheme = data.theme || 'theme-1';
     announcement = data.announcement || '';
     orderLimit = data.order_limit || 0;
@@ -252,7 +254,8 @@ function saveData() {
         active_bento_id: selectedBentoStoreId,
         active_drink_id: selectedDrinkStoreId,
         admin_password: adminPassword,
-        order_deadline: orderDeadline,
+        bento_deadline: bentoDeadline,
+        drink_deadline: drinkDeadline,
         theme: currentTheme,
         announcement: announcement,
         order_limit: orderLimit,
@@ -309,8 +312,9 @@ function renderMenu() {
         const cartItem = cart.find(c => c.id === item.id);
         const qty = cartItem ? cartItem.quantity : 0;
         const imgHtml = item.img ? `<img src="${item.img}" class="menu-img" alt="${item.name}" onerror="this.innerHTML='🍱';this.src='';">` : `<div class="menu-img">🍱</div>`;
+        const isExpired = window.isDeadlinePassed(currentCategory);
         return `
-            <div class="menu-card">
+            <div class="menu-card ${isExpired ? 'expired' : ''}">
                 ${imgHtml}
                 <div class="menu-info">
                     <div>
@@ -319,11 +323,12 @@ function renderMenu() {
                         <p class="price">$${item.price}</p>
                     </div>
                     <div class="menu-controls">
-                        <button class="qty-btn" onclick="updateQty('${item.id}', -1, '${store.id}')">-</button>
+                        <button class="qty-btn" ${isExpired ? 'disabled' : ''} onclick="updateQty('${item.id}', -1, '${store.id}')">-</button>
                         <span>${qty}</span>
-                        <button class="qty-btn" onclick="updateQty('${item.id}', 1, '${store.id}')">+</button>
+                        <button class="qty-btn" ${isExpired ? 'disabled' : ''} onclick="updateQty('${item.id}', 1, '${store.id}')">+</button>
                     </div>
                 </div>
+                ${isExpired ? '<div class="expired-overlay">已截止</div>' : ''}
             </div>`;
     }).join('');
 }
@@ -361,13 +366,14 @@ window.updateQty = (id, delta, storeId) => {
     renderMenu();
 };
 
-window.isDeadlinePassed = () => {
-    if (!orderDeadline) return false;
+window.isDeadlinePassed = (type) => {
+    const deadline = type === 'drink' ? drinkDeadline : bentoDeadline;
+    if (!deadline) return false;
     const now = new Date();
     const currentHours = now.getHours();
     const currentMinutes = now.getMinutes();
     
-    const [deadHours, deadMinutes] = orderDeadline.split(':').map(Number);
+    const [deadHours, deadMinutes] = deadline.split(':').map(Number);
     
     if (currentHours > deadHours) return true;
     if (currentHours === deadHours && currentMinutes >= deadMinutes) return true;
@@ -377,18 +383,22 @@ window.isDeadlinePassed = () => {
 window.updateDeadlineUI = () => {
     const banner = document.getElementById('deadline-banner');
     const submitBtn = document.getElementById('submit-order');
-    const currentDisplay = document.getElementById('current-deadline-display');
-    const adminInput = document.getElementById('admin-deadline-input');
+    const bentoDisplay = document.getElementById('current-bento-deadline-display');
+    const drinkDisplay = document.getElementById('current-drink-deadline-display');
     
-    if (adminInput && !adminInput.value && orderDeadline) {
-        adminInput.value = orderDeadline;
-    }
+    const bentoInput = document.getElementById('admin-bento-deadline-input');
+    const drinkInput = document.getElementById('admin-drink-deadline-input');
+    
+    if (bentoInput && !bentoInput.value && bentoDeadline) bentoInput.value = bentoDeadline;
+    if (drinkInput && !drinkInput.value && drinkDeadline) drinkInput.value = drinkDeadline;
 
-    if (currentDisplay) {
-        currentDisplay.innerText = orderDeadline ? `目前設定截止時間：${orderDeadline}` : '目前無設定截止時間 (隨時可訂)';
-    }
+    if (bentoDisplay) bentoDisplay.innerText = bentoDeadline ? `🍱 便當截止：${bentoDeadline}` : '🍱 便當：不限時';
+    if (drinkDisplay) drinkDisplay.innerText = drinkDeadline ? `🥤 飲料截止：${drinkDeadline}` : '🥤 飲料：不限時';
 
-    if (!orderDeadline) {
+    const bentoPassed = window.isDeadlinePassed('bento');
+    const drinkPassed = window.isDeadlinePassed('drink');
+
+    if (!bentoDeadline && !drinkDeadline) {
         if (banner) banner.style.display = 'none';
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -399,19 +409,29 @@ window.updateDeadlineUI = () => {
 
     if (banner) banner.style.display = 'block';
 
-    if (window.isDeadlinePassed()) {
+    if (bentoPassed && drinkPassed) {
         if (banner) {
             banner.className = 'deadline-banner passed';
-            banner.innerHTML = `🛑 今日訂餐已於 ${orderDeadline} 截止，無法再新增或修改訂單！`;
+            banner.innerHTML = `🛑 今日訂餐已截止，無法再點餐！`;
         }
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerText = '時間已截止';
         }
+    } else if (bentoPassed) {
+        if (banner) {
+            banner.className = 'deadline-banner active';
+            banner.innerHTML = `⚠️ 便當已於 ${bentoDeadline} 截止，僅剩飲料可點！`;
+        }
+    } else if (drinkPassed) {
+        if (banner) {
+            banner.className = 'deadline-banner active';
+            banner.innerHTML = `⚠️ 飲料已於 ${drinkDeadline} 截止，僅剩便當可點！`;
+        }
     } else {
         if (banner) {
             banner.className = 'deadline-banner active';
-            banner.innerHTML = `⚠️ 今日訂餐將於 <b>${orderDeadline}</b> 截止，請盡快送出！`;
+            banner.innerHTML = `⚠️ 便當於 <b>${bentoDeadline || '無限制'}</b> 截止，飲料於 <b>${drinkDeadline || '無限制'}</b> 截止`;
         }
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -422,7 +442,7 @@ window.updateDeadlineUI = () => {
 
 // Check deadline every 30 seconds
 setInterval(() => {
-    if (orderDeadline) window.updateDeadlineUI();
+    if (bentoDeadline || drinkDeadline) window.updateDeadlineUI();
 }, 30000);
 
 // --- Announcement UI ---
@@ -467,7 +487,7 @@ window.updateOrderLimitUI = () => {
             banner.className = 'deadline-banner passed';
             banner.innerHTML = `🛑 今日訂單已額滿 (${orderLimit}/${orderLimit})，無法再接單！`;
         }
-        if (submitBtn && !window.isDeadlinePassed()) {
+        if (submitBtn && !window.isDeadlinePassed('bento') && !window.isDeadlinePassed('drink')) {
             submitBtn.disabled = true;
             submitBtn.innerText = '訂單已額滿';
         }
@@ -532,9 +552,13 @@ window.deleteHistoryDay = (day) => {
 };
 
 window.editMyOrder = (orderId) => {
-    if (window.isDeadlinePassed()) return alert('🛑 時間已經截止，無法更改訂單囉！');
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
+    
+    // Check if any items in the order have expired deadlines
+    const hasExpiredItems = order.items.some(i => window.isDeadlinePassed(i.type));
+    if (hasExpiredItems) return alert('🛑 抱歉，這筆訂單中包含已截止的品項，無法再修改囉！');
+
     if (confirm('即將載入此訂單到購物車以便修改，原本的訂單將被取消，確定嗎？')) {
         // Cancel the order
         orders = orders.filter(o => o.id !== orderId);
@@ -550,7 +574,12 @@ window.editMyOrder = (orderId) => {
 };
 
 window.cancelMyOrder = (orderId) => {
-    if (window.isDeadlinePassed()) return alert('🛑 時間已經截止，無法取消訂單囉！');
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+    
+    const hasExpiredItems = order.items.some(i => window.isDeadlinePassed(i.type));
+    if (hasExpiredItems) return alert('🛑 抱歉，訂單已包含截止品項，無法取消囉！');
+    
     if (confirm('確定要取消這筆訂單嗎？')) {
         orders = orders.filter(o => o.id !== orderId);
         saveData();
@@ -952,21 +981,38 @@ window.editTemplateName = (id) => {
     }
 };
 
-    const saveDeadlineBtn = document.getElementById('save-deadline-btn');
-    if (saveDeadlineBtn) saveDeadlineBtn.addEventListener('click', () => {
-        const timeInput = document.getElementById('admin-deadline-input').value;
-        if (!timeInput) return alert('請先選擇時間喔！');
-        orderDeadline = timeInput;
+    const saveBentoBtn = document.getElementById('save-bento-deadline-btn');
+    if (saveBentoBtn) saveBentoBtn.addEventListener('click', () => {
+        const timeInput = document.getElementById('admin-bento-deadline-input').value;
+        if (!timeInput) return alert('請選擇便當截止時間');
+        bentoDeadline = timeInput;
         saveData();
-        showToast(`已成功設定截止時間為 ${timeInput}！`);
+        showToast(`便當截止時間已設為 ${timeInput}`);
     });
 
-    const clearDeadlineBtn = document.getElementById('clear-deadline-btn');
-    if (clearDeadlineBtn) clearDeadlineBtn.addEventListener('click', () => {
-        document.getElementById('admin-deadline-input').value = '';
-        orderDeadline = '';
+    const clearBentoBtn = document.getElementById('clear-bento-deadline-btn');
+    if (clearBentoBtn) clearBentoBtn.addEventListener('click', () => {
+        document.getElementById('admin-bento-deadline-input').value = '';
+        bentoDeadline = '';
         saveData();
-        showToast('已成功解除時間限制！');
+        showToast('已清除便當截止限制');
+    });
+
+    const saveDrinkBtn = document.getElementById('save-drink-deadline-btn');
+    if (saveDrinkBtn) saveDrinkBtn.addEventListener('click', () => {
+        const timeInput = document.getElementById('admin-drink-deadline-input').value;
+        if (!timeInput) return alert('請選擇飲料截止時間');
+        drinkDeadline = timeInput;
+        saveData();
+        showToast(`飲料截止時間已設為 ${timeInput}`);
+    });
+
+    const clearDrinkBtn = document.getElementById('clear-drink-deadline-btn');
+    if (clearDrinkBtn) clearDrinkBtn.addEventListener('click', () => {
+        document.getElementById('admin-drink-deadline-input').value = '';
+        drinkDeadline = '';
+        saveData();
+        showToast('已清除飲料截止限制');
     });
 
     // --- Announcement Listeners ---
@@ -1273,8 +1319,9 @@ function setupEventListeners() {
             return;
         }
 
-        if (window.isDeadlinePassed()) {
-            alert('🛑 抱歉，今日訂餐時間已經截止，無法再點餐囉！');
+        const expiredItems = cart.filter(i => window.isDeadlinePassed(i.type));
+        if (expiredItems.length > 0) {
+            alert(`🛑 抱歉，您的訂單中包含已截止的品項 (${expiredItems.map(i=>i.name).join(', ')})，請先移除後再送出！`);
             return;
         }
 

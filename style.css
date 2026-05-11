@@ -342,7 +342,28 @@ body {
 }
 
 .qty-btn:active { transform: scale(0.9); }
+.qty-btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
 .menu-controls span { font-weight: 800; font-size: 16px; width: 16px; text-align: center; font-family: 'Outfit', sans-serif; }
+
+.menu-card.expired {
+    filter: grayscale(0.8);
+}
+
+.expired-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    border-radius: var(--radius-md);
+    z-index: 5;
+    letter-spacing: 2px;
+}
 
 /* =========================================
    Floating Cart Bar

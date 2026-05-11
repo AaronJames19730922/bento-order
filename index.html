@@ -93,12 +93,24 @@
                 <div id="order-mgmt" class="subview active">
                     <div class="admin-store-lock" style="margin-bottom: 20px;">
                         <h3>⏰ 訂餐截止時間設定</h3>
-                        <div class="selector-group" style="display: flex; flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
-                            <input type="time" id="admin-deadline-input" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border);">
-                            <button id="save-deadline-btn" class="btn primary">設定截止</button>
-                            <button id="clear-deadline-btn" class="btn ghost">清除限制</button>
+                        <div class="selector-group" style="margin-top: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+                                <label style="font-size: 14px; font-weight: 800; color: var(--primary-dark); min-width: 80px;">🍱 便當：</label>
+                                <input type="time" id="admin-bento-deadline-input" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border);">
+                                <button id="save-bento-deadline-btn" class="btn primary" style="padding: 8px 16px;">設定</button>
+                                <button id="clear-bento-deadline-btn" class="btn ghost" style="padding: 8px 16px;">清除</button>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <label style="font-size: 14px; font-weight: 800; color: #0984e3; min-width: 80px;">🥤 飲料：</label>
+                                <input type="time" id="admin-drink-deadline-input" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border);">
+                                <button id="save-drink-deadline-btn" class="btn primary" style="padding: 8px 16px;">設定</button>
+                                <button id="clear-drink-deadline-btn" class="btn ghost" style="padding: 8px 16px;">清除</button>
+                            </div>
                         </div>
-                        <p id="current-deadline-display" style="margin-top: 10px; font-size: 14px; font-weight: bold; color: var(--danger);"></p>
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.03); border-radius: 8px;">
+                            <p id="current-bento-deadline-display" style="font-size: 13px; font-weight: bold; color: var(--danger);"></p>
+                            <p id="current-drink-deadline-display" style="margin-top: 6px; font-size: 13px; font-weight: bold; color: #0984e3;"></p>
+                        </div>
                     </div>
 
                     <div class="admin-store-lock" style="margin-bottom: 20px;">
