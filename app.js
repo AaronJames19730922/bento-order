@@ -161,7 +161,8 @@ const drawerCartCount = document.getElementById('drawer-cart-count');
 const cartTotalAmount = document.getElementById('cart-total-amount');
 const userNameInput = document.getElementById('user-name');
 const adminOrdersList = document.getElementById('orders-list');
-const adminStatsList = document.getElementById('stats-list');
+const bentoStatsList = document.getElementById('bento-stats-list');
+const drinkStatsList = document.getElementById('drink-stats-list');
 const bentoStoreSelect = document.getElementById('bento-store-select');
 const drinkStoreSelect = document.getElementById('drink-store-select');
 const storesAdminList = document.getElementById('stores-admin-list');
@@ -681,14 +682,64 @@ window.removeItem = (id) => {
 
 // --- Admin ---
 function renderAdmin() {
-    const stats = {};
+    const bentoStats = {};
+    const drinkStats = {};
+    let totalBentoQty = 0;
+    let totalDrinkQty = 0;
+    
     orders.forEach(order => {
         order.items.forEach(item => {
-            const key = item.type === 'drink' ? `${item.name}(${item.sugar}/${item.ice})` : item.name;
-            stats[key] = (stats[key] || 0) + item.quantity;
+            // --- Robust Type Detection ---
+            // 1. Check item.type
+            // 2. Check if item has sugar/ice (likely a drink)
+            // 3. Look up store type by storeName
+            let type = item.type;
+            if (!type) {
+                const store = stores.find(s => s.name === item.storeName);
+                if (store) type = store.type;
+                else if (item.sugar || item.ice) type = 'drink';
+                else type = 'bento';
+            }
+
+            if (type === 'drink') {
+                const key = `${item.name}(${item.sugar || '正常'}/${item.ice || '正常'})`;
+                drinkStats[key] = (drinkStats[key] || 0) + item.quantity;
+                totalDrinkQty += item.quantity;
+            } else {
+                const key = item.name;
+                bentoStats[key] = (bentoStats[key] || 0) + item.quantity;
+                totalBentoQty += item.quantity;
+            }
         });
     });
-    if (adminStatsList) adminStatsList.innerHTML = Object.entries(stats).map(([name, qty]) => `<div class="stat-item"><span>${name}</span><span>${qty} 份</span></div>`).join('') || '<p style="opacity:0.7">尚無訂單統計</p>';
+
+    if (bentoStatsList) {
+        let html = Object.entries(bentoStats).map(([name, qty]) => 
+            `<div class="stat-item"><span>${name}</span><span>${qty} 份</span></div>`
+        ).join('');
+        
+        if (totalBentoQty > 0) {
+            html = `<div class="stat-item" style="border-bottom: 2px solid var(--primary-light); margin-bottom: 10px; color: var(--primary-dark);">
+                        <span><b>便當總計</b></span><span><b>${totalBentoQty} 份</b></span>
+                    </div>` + html;
+        }
+        
+        bentoStatsList.innerHTML = html || '<p style="opacity:0.7">尚無便當訂單</p>';
+    }
+    
+    if (drinkStatsList) {
+        let html = Object.entries(drinkStats).map(([name, qty]) => 
+            `<div class="stat-item"><span>${name}</span><span>${qty} 份</span></div>`
+        ).join('');
+
+        if (totalDrinkQty > 0) {
+            html = `<div class="stat-item" style="border-bottom: 2px solid #74c0fc; margin-bottom: 10px; color: #0984e3;">
+                        <span><b>飲料總計</b></span><span><b>${totalDrinkQty} 份</b></span>
+                    </div>` + html;
+        }
+
+        drinkStatsList.innerHTML = html || '<p style="opacity:0.7">尚無飲料訂單</p>';
+    }
     if (adminOrdersList) adminOrdersList.innerHTML = orders.map(order => `
         <div class="order-card" style="border-left: 4px solid ${order.isPaid ? 'var(--success)' : 'var(--danger)'};">
             <div class="order-card-header"><span>👤 ${order.userName}</span><span>$${order.total}</span></div>
@@ -1294,14 +1345,43 @@ function setupEventListeners() {
 
     const copySummaryBtn = document.getElementById('copy-summary');
     if (copySummaryBtn) copySummaryBtn.addEventListener('click', () => {
-        const stats = {};
+        const bentoStats = {};
+        const drinkStats = {};
+        let totalBentoQty = 0;
+        let totalDrinkQty = 0;
+        
         orders.forEach(order => order.items.forEach(item => {
-            const key = item.type === 'drink' ? `${item.name}(${item.sugar}/${item.ice})` : item.name;
-            stats[key] = (stats[key] || 0) + item.quantity;
+            let type = item.type;
+            if (!type) {
+                const store = stores.find(s => s.name === item.storeName);
+                if (store) type = store.type;
+                else if (item.sugar || item.ice) type = 'drink';
+                else type = 'bento';
+            }
+
+            if (type === 'drink') {
+                const key = `${item.name}(${item.sugar || '正常'}/${item.ice || '正常'})`;
+                drinkStats[key] = (drinkStats[key] || 0) + item.quantity;
+                totalDrinkQty += item.quantity;
+            } else {
+                const key = item.name;
+                bentoStats[key] = (bentoStats[key] || 0) + item.quantity;
+                totalBentoQty += item.quantity;
+            }
         }));
-        let text = `🍱 便當訂購統計 (${new Date().toLocaleDateString()})\n====================\n`;
-        Object.entries(stats).forEach(([name, qty]) => text += `${name}：${qty} 份\n`);
-        text += `====================\n總計訂單數：${orders.length} 筆`;
+
+        let text = `🍱 訂購統計匯總 (${new Date().toLocaleDateString()})\n`;
+        text += `====================\n`;
+        text += `【便當小計 - 共 ${totalBentoQty} 份】\n`;
+        Object.entries(bentoStats).forEach(([name, qty]) => text += `${name}：${qty} 份\n`);
+        if (Object.keys(bentoStats).length === 0) text += `(無)\n`;
+        
+        text += `\n【飲料小計 - 共 ${totalDrinkQty} 份】\n`;
+        Object.entries(drinkStats).forEach(([name, qty]) => text += `${name}：${qty} 份\n`);
+        if (Object.keys(drinkStats).length === 0) text += `(無)\n`;
+        
+        text += `====================\n`;
+        text += `總計訂單數：${orders.length} 筆`;
         
         const unpaidUsers = orders.filter(o => !o.isPaid).map(o => o.userName);
         if (unpaidUsers.length > 0) {
